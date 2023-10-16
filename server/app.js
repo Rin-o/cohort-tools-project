@@ -35,11 +35,9 @@ app.get("/api/cohorts", (req, res) => {
 })
 
 app.get("/api/students", (req, res) => {
-  const dataStudents = require("./students.json")
-      res.json(dataStudents)
+  const dataCohorts = require("./students.json")
+      res.json(dataCohorts)
 })
-
-
 
 // START SERVER
 app.listen(PORT, () => {
