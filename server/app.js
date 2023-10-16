@@ -29,6 +29,12 @@ app.get("/docs", (req, res) => {
   res.sendFile(__dirname + "/views/docs.html");
 });
 
+app.get("/api/cohorts", (req, res) => {
+  const dataCohorts = require("cohorts.json")
+      res.json(dataCohorts)
+})
+
+
 
 // START SERVER
 app.listen(PORT, () => {
