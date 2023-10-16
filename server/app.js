@@ -30,11 +30,14 @@ app.get("/docs", (req, res) => {
 });
 
 app.get("/api/cohorts", (req, res) => {
-  const dataCohorts = require("cohorts.json")
+  const dataCohorts = require("./cohorts.json")
       res.json(dataCohorts)
 })
 
-
+app.get("/api/students", (req, res) => {
+  const dataCohorts = require("./students.json")
+      res.json(dataCohorts)
+})
 
 // START SERVER
 app.listen(PORT, () => {
