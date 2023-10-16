@@ -35,8 +35,8 @@ app.get("/api/cohorts", (req, res) => {
 })
 
 app.get("/api/students", (req, res) => {
-  const dataCohorts = require("./students.json")
-      res.json(dataCohorts)
+  const dataStudents = require("./students.json")
+      res.json(dataStudents)
 })
 
 // START SERVER
