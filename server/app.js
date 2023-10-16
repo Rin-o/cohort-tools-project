@@ -2,6 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const cors = require("cors")
+const helmet = require('helmet')
 const PORT = 5005;
 
 // STATIC DATA
@@ -21,6 +22,7 @@ app.use(morgan("dev"));
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(helmet())
 app.use(
   cors({
 origin: [`http://localhost:5173`,`http://127.0.0.1:5173`],
