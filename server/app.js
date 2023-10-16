@@ -36,10 +36,12 @@ app.get("/docs", (req, res) => {
 });
 
 app.get('/api/cohorts', (req, res) => {
+  res.set('Content-Type', 'application/json');
   res.sendFile('cohorts.json', { root: __dirname });
 });
 
 app.get('/api/students', (req, res) => {
+  res.set('Content-Type', 'application/json');
   res.sendFile('students.json', { root: __dirname });
 });
 
