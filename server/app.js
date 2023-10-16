@@ -35,15 +35,13 @@ app.get("/docs", (req, res) => {
   res.sendFile(__dirname + "/views/docs.html");
 });
 
-app.get("/api/cohorts", (req, res) => {
-  const dataCohorts = require("./cohorts.json")
-      res.json(dataCohorts)
-})
+app.get('/api/cohorts', (req, res) => {
+  res.sendFile('cohorts.json', { root: __dirname });
+});
 
-app.get("/api/students", (req, res) => {
-  const dataStudents = require("./students.json")
-      res.json(dataStudents)
-})
+app.get('/api/students', (req, res) => {
+  res.sendFile('students.json', { root: __dirname });
+});
 
 // START SERVER
 app.listen(PORT, () => {
