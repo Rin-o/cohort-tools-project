@@ -30,7 +30,7 @@ app.get("/docs", (req, res) => {
 });
 
 app.get("/api/cohorts", (req, res) => {
-  const dataCohorts = require("cohorts.json")
+  const dataCohorts = require("./cohorts.json")
       res.json(dataCohorts)
 })
 
