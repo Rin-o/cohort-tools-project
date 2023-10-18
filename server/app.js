@@ -62,7 +62,7 @@ app.get("/api/cohorts", async (request, response) => {
 
 app.get("/api/students", async (request, response) => {
   try {
-    const students = await Student.find();
+    const students = await Student.find().populate("cohort");
     response.status(200).json({ students: students });
   } catch (error) {
     response
@@ -87,7 +87,9 @@ app.get("/api/students/cohort/:cohortId", async (request, response) => {
   const { cohortId } = request.params;
   if (mongoose.isValidObjectId(cohortId)) {
     try {
-      const currentCohort = await Student.find({ cohort: cohortId });
+      const currentCohort = await Student.find({ cohort: cohortId }).populate(
+        "cohort"
+      );
       if (currentCohort) {
         response.json({ student: currentCohort });
       } else {
