@@ -5,6 +5,8 @@ const cors = require("cors")
 const helmet = require('helmet')
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const Student = require("./models/students");
+const Cohort = require("./models/cohorts");
 const PORT = 5005;
 
 mongoose
@@ -17,49 +19,6 @@ mongoose
 // STATIC DATA
 // Devs Team - Import the provided files with JSON data of students and cohorts here:
 // ...
-
-const cohortSchema = new Schema({
-  cohortSlug:{type:String, required:true, unique:true},
-  cohortName: {type:String, required:true},
-  program: {type:String, enum: ["Web Dev", "UX/UI", "Data Analytics", "Cybersecurity"]},
-  format: {type:String, enum: ["Full Time", "Part Time"]},
-  campus: {type:String, enum: ["Madrid", "Barcelona", "Miami", "Paris", "Berlin", "Amsterdam", "Lisbon", "Remote"]},
-  startDate: {type:Date,default:Date.now},
-  endDate: Date,
-  inProgress: {type:Boolean, default: false},
-  programManager: {type:String, required:true},
-  leadTeacher: {type:String, required:true},
-  totalHours: {type:Number, default: 360}
- 
-});
- 
-
-const Cohort = mongoose.model("Cohort", cohortSchema);
- 
-
-module.exports = Cohort;
-
-
-const studentSchema = new Schema({
-  firstName:{type:String, required:true},
-  lastName: {type:String, required:true},
-  email: {type:String, required:true, unique:true},
-  phone: {type:String, required:true},
-  linkedinUrl: {type:String, default:''},
-  languages: {type:String, enum: ["English", "Spanish", "French", "German", "Portuguese", "Dutch", "Other"]},
-  program: {type:String,  enum: ["Web Dev", "UX/UI", "Data Analytics", "Cybersecurity"]},
-  background: {type:String, default:''},
-  image: {type:String, default:'https://i.imgur.com/r8bo8u7.png'},
-  cohort: {type:mongoose.Schema.Types.ObjectId, ref:'Cohort'},
-  projects: [String]
- 
-});
- 
-
-const Student = mongoose.model("Student", studentSchema);
- 
-
-module.exports = Student;
 
 // INITIALIZE EXPRESS APP - https://expressjs.com/en/4x/api.html#express
 const app = express();
@@ -88,15 +47,156 @@ app.get("/docs", (req, res) => {
   res.sendFile(__dirname + "/views/docs.html");
 });
 
-app.get('/api/cohorts', (req, res) => {
-  res.set('Content-Type', 'application/json');
-  res.sendFile('cohorts.json', { root: __dirname });
+app.get("/api/cohorts", async (request, response) => {
+  try {
+    const cohort = await Cohort.find();
+    response.status(200).json({ cohorts: cohorts });
+  } catch (error) {
+    response
+      .status(500)
+      .json({ error: "Status code: 500 (Internal Server Error)" });
+  }
 });
 
-app.get('/api/students', (req, res) => {
-  res.set('Content-Type', 'application/json');
-  res.sendFile('students.json', { root: __dirname });
+//* GET /api/students - Retrieves all of the students in the database collection
+
+app.get("/api/students", async (request, response) => {
+  try {
+    const students = await Student.find();
+    response.status(200).json({ students: students });
+  } catch (error) {
+    response
+      .status(500)
+      .json({ error: "Status code: 500 (Internal Server Error)" });
+  }
 });
+
+//POST /api/students - Creates a new student
+app.post('/api/students', async (request, response) => {
+  try {
+    const newStudent = await Student.create(request.body)
+    response.status(201).json({ student: newStudent })
+  } catch (error) {
+    console.log(error)
+    response.status(400).json({ error })
+  }
+})
+
+//* GET /api/students/cohort/:cohortId - Retrieves all of the students for a given cohort
+app.get("/api/students/cohort/:cohortId", async (request, response) => {
+  const { cohortId } = request.params;
+  if (mongoose.isValidObjectId(cohortId)) {
+    try {
+      const currentCohort = await Student.find({cohort: cohortId});
+      if (currentCohort) {
+        response.json({ student: currentCohort });
+      } else {
+        response.status(404).json({ message: "Cohort not found" });
+      }
+    } catch (error) {
+      console.log(error);
+      response.status(400).json({ error });
+    }
+  } else {
+    response.status(400).json({ message: "The id seems wrong" });
+  }
+});
+
+//* GET /api/students/:studentId - Retrieves a specific student by id
+app.get('/api/students/:studentId', async (request, response) => {
+  const { studentId } = request.params
+  if (mongoose.isValidObjectId(studentId)) {
+    try {
+      const currentStudent = await Student.findById(studentId)
+      if (currentStudent) {
+        response.json({ student: currentStudent })
+      } else {
+        response.status(404).json({ message: 'Student not found' })
+      }
+    } catch (error) {
+      console.log(error)
+      response.status(400).json({ error })
+    }
+  } else {
+    response.status(400).json({ message: 'The id seems wrong' })
+  }
+})
+
+//PUT /api/students/:studentId - Updates a specific student by id
+
+app.put('/api/students/:studentId', async (request, response) => {
+  const { studentId } = request.params
+
+  try {
+    const newStudent = await Student.findByIdAndUpdate(studentId, request.body, { new: true })
+    response.status(202).json({ student: newStudent })
+  } catch (error) {
+    console.log(error)
+    response.status(400).json({ error })
+  }
+})
+
+//* DELETE /api/students/:studentId - Deletes a specific student by id
+app.delete('/api/students/:studentId', async (request, response) => {
+  const { studentId } = request.params
+
+  await Student.findByIdAndDelete(studentId)
+  response.status(202).json({ message: 'Student deleted' })
+})
+
+//* POST /api/cohorts - Creates a new cohort
+app.post('/api/cohorts', async (request, response) => {
+  try {
+    const newCohort = await Cohort.create(request.body)
+    response.status(201).json({ cohort: newCohort })
+  } catch (error) {
+    console.log(error)
+    response.status(400).json({ error })
+  }
+})
+
+//* GET /api/cohorts/:cohortId - Retrieves a specific cohort by id
+
+app.get('/api/cohorts/:cohortId', async (request, response) => {
+  const { cohortId } = request.params
+  if (mongoose.isValidObjectId(cohortId)) {
+    try {
+      const currentCohort = await Cohort.findById(cohortId)
+      if (currentCohort) {
+        response.json({ cohort: currentCohort })
+      } else {
+        response.status(404).json({ message: 'Cohort not found' })
+      }
+    } catch (error) {
+      console.log(error)
+      response.status(400).json({ error })
+    }
+  } else {
+    response.status(400).json({ message: 'The id seems wrong' })
+  }
+})
+
+//* PUT /api/cohorts/:cohortId - Updates a specific cohort by id
+
+app.put('/api/cohorts/:cohortId', async (request, response) => {
+  const { cohortId } = request.params
+
+  try {
+    const newCohort = await Cohort.findByIdAndUpdate(cohortId, request.body, { new: true })
+    response.status(202).json({ cohort: newCohort })
+  } catch (error) {
+    console.log(error)
+    response.status(400).json({ error })
+  }
+})
+
+//* DELETE /api/cohorts/:cohortId - Deletes a specific cohort by id
+app.delete('/api/cohorts/:cohortId', async (request, response) => {
+  const { cohortId } = request.params
+
+  await Cohort.findByIdAndDelete(cohortId)
+  response.status(202).json({ message: 'Cohort deleted' })
+})
 
 // START SERVER
 app.listen(PORT, () => {
