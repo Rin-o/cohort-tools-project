@@ -107,8 +107,9 @@ app.get('/api/students/:studentId', async (request, response) => {
   const { studentId } = request.params
   if (mongoose.isValidObjectId(studentId)) {
     try {
-      const currentStudent = await Student.findById(studentId)
+      const currentStudent = await Student.findById(studentId).populate('cohort')
       if (currentStudent) {
+        console.log(currentStudent)
         response.json({ student: currentStudent })
       } else {
         response.status(404).json({ message: 'Student not found' })
