@@ -50,7 +50,7 @@ app.get("/docs", (req, res) => {
 app.get("/api/cohorts", async (request, response) => {
   try {
     const cohort = await Cohort.find();
-    response.status(200).json({ cohorts: cohorts });
+    response.status(200).json({ cohorts: cohort });
   } catch (error) {
     response
       .status(500)
