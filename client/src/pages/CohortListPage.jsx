@@ -58,7 +58,7 @@ function CohortListPage() {
         <span style={{ flexBasis: "15%" }}>Ongoing</span>
         <span style={{ flexBasis: "25%" }}>Id</span>
       </div>
-      {console.log(cohorts)}
+
       {cohorts &&
         cohorts.map((cohort, index) => (
           <CohortCard
